@@ -4,7 +4,6 @@ import requests
 import json
 
 webhook = "WEBHOOK_URL_HERE"
-
 def send_discord_message(webhook_url, sender, message):
     payload = {
         "username": sender,
@@ -18,13 +17,20 @@ def send_discord_message(webhook_url, sender, message):
         print("Failed to send Discord message:", response.text)
 
 def callback(packet):
-    if "message_text" in packet:
-        if "DCRDGTE" in packet['message_text']:
+    if "addresse" in packet:
+        if "DCDGTE" in packet['addresse']:
             print(packet)
-            send_discord_message(webhook, "DCRDGTE", f"{packet['from']}:{packet['message_text'].replace('DCRDGTE','')}")
+            send_discord_message(webhook, "DCDGTE", f"{packet['from']} : {packet['message_text'].replace('DCDGTE','')}")
+            if "msgNo" in packet:
+                print("Sending ack")
+                AIS.sendall(f"DCDGTE>DCDGTE::{packet['from']}   :ack{packet['msgNo']}")
 
-AIS = aprslib.IS("N0CALL", "-1", "rotate.aprs.net", "14580")
-AIS.set_filter("t/m")
+print("Setting login...")
+AIS = aprslib.IS("WG0A-8", passwd="")
+print("Logged in...")
+# AIS.set_filter("t/m")
+print("Filter set...")
 AIS.connect()
+print("Connected...")
 # by default `raw` is False, then each line is ran through aprslib.parse()
 AIS.consumer(callback, raw=False)
